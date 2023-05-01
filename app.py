@@ -1,8 +1,8 @@
 import streamlit as st
 import pickle
 
-vector = pickle.load(open("/home/mr1ncr1d1ble/Downloads/vectorizer.pkl", 'rb'))
-model = pickle.load(open("/home/mr1ncr1d1ble/Downloads/finalized_model.pkl", 'rb'))
+vector = pickle.load(open("vectorizer.pkl", 'rb'))
+model = pickle.load(open("finalized_model.pkl", 'rb'))
 # Define the content of the home page
 def home():
     st.write("""
