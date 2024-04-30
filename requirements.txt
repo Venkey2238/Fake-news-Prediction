@@ -15,4 +15,4 @@ basicsr
 pyqt5
 pygame
 torch
-
+sqlite3
