@@ -1,35 +1,8 @@
 import streamlit as st
 import pickle
-import sqlite3
-import hashlib
 
 vector = pickle.load(open("vectorizer.pkl", 'rb'))
 model = pickle.load(open("finalized_model.pkl", 'rb'))
-
-# Function to create a database connection
-def create_connection():
-    conn = sqlite3.connect('user_data.db')
-    return conn
-
-# Function to create a table to store user data if it doesn't exist
-def create_table(conn):
-    cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS users
-                      (username TEXT PRIMARY KEY, password TEXT)''')
-    conn.commit()
-
-# Function to insert user data into the database
-def add_user(conn, username, password):
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
-    conn.commit()
-
-# Function to check if a user exists in the database
-def check_user(conn, username, password):
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
-    return cursor.fetchone() is not None
-
 # Define the content of the home page
 def home():
     st.write("""
@@ -60,44 +33,17 @@ def home():
     ---
     """)
 
-# Define the content of the login page
-def login():
-    st.title("Login")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        conn = create_connection()
-        if check_user(conn, username, hashlib.sha256(password.encode()).hexdigest()):
-            st.success("Login successful!")
-            return True
-        else:
-            st.error("Invalid username or password.")
-            return False
 
-# Define the content of the registration page
-def register():
-    st.title("Register")
-    new_username = st.text_input("New Username")
-    new_password = st.text_input("New Password", type="password")
-    confirm_password = st.text_input("Confirm Password", type="password")
-    if st.button("Register"):
-        if new_password == confirm_password:
-            conn = create_connection()
-            add_user(conn, new_username, hashlib.sha256(new_password.encode()).hexdigest())
-            st.success("Registration successful! You can now login.")
-        else:
-            st.error("Passwords do not match.")
-
-# Function to predict the news authenticity
 def predict_news(news):
     predict = model.predict(vector.transform([news]))[0]
     return predict
 
-# Define the content of the prediction page
 def prediction():
     st.title("Fake News Prediction App")
+
     st.header("Enter the text of the news article below")
     news = st.text_area("News Text")
+
     if st.button("Predict"):
         if news:
             prediction = predict_news(news)
@@ -105,23 +51,14 @@ def prediction():
         else:
             st.warning("Please enter the text of the news article to make a prediction.")
 
-# Main function to handle page navigation
 def main():
     st.sidebar.title("Navigation")
-    menu = ["Home", "Login", "Register", "Prediction"]
+    menu = ["Home", "Prediction"]
     choice = st.sidebar.selectbox("Select an option", menu)
     if choice == "Home":
         home()
-    elif choice == "Login":
-        if login():
-            st.experimental_rerun()
-    elif choice == "Register":
-        register()
     elif choice == "Prediction":
-        if login():
-            prediction()
+        prediction()
 
 if __name__ == '__main__':
-    conn = create_connection()
-    create_table(conn)
     main()
