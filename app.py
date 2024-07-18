@@ -4,8 +4,8 @@ import hashlib
 import sqlite3
 
 # Load ML models (same as before)
-vector = pickle.load(open("vectorizer.pkl", 'rb'))
-model = pickle.load(open("finalized_model.pkl", 'rb'))
+vector = pickle.load(open("vector.pkl", 'rb'))
+model = pickle.load(open("final.pkl", 'rb'))
 
 # Define database functions
 def create_connection():
